@@ -1,0 +1,124 @@
+package Server;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.channels.Selector;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+
+import Message.Message;
+import Parser.FileServerParser;
+
+public class EventManager implements Runnable {
+	
+	private Selector selector;
+	private FileServer server;
+	
+	public EventManager(FileServer fileServer) {
+		this.server = fileServer;
+	}
+
+	public void run() {
+		try {
+
+			selector = Selector.open();
+			ServerSocketChannel serverSocketChannel = ServerSocketChannel
+					.open();
+			serverSocketChannel.configureBlocking(false);// 블로킹방식
+			serverSocketChannel.bind(new InetSocketAddress(server.serverPort));
+			serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+			System.out.println("[" + server.serverPort +"] Server Start");
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		while (true) {
+			try{
+				selector.select();
+				System.out.println("Something selected");
+				
+				Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+				
+				while(keys.hasNext()){
+					SelectionKey key = (SelectionKey) keys.next();
+					keys.remove();
+					
+					if(!key.isValid()){
+						continue;
+					}
+					if(key.isAcceptable()){
+						accept(key);
+					}
+					else if(key.isReadable()){
+						readData(key);
+					}
+				} 
+				
+			}catch (IOException e){
+				e.printStackTrace();
+			}
+
+		}
+	}
+	
+	private void accept(SelectionKey key){
+		System.out.println("Accept");
+		ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
+		try{
+			SocketChannel channel= serverChannel.accept();
+			channel.configureBlocking(false);
+			channel.register(selector, SelectionKey.OP_READ);
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void readData(SelectionKey key) throws IOException{
+		System.out.println("ReadData");
+		SocketChannel channel = (SocketChannel) key.channel();
+		
+		try{
+			channel.configureBlocking(true);
+			ObjectInputStream inputObj = new ObjectInputStream(channel.socket().getInputStream());
+			Message msg = (Message)inputObj.readObject();
+			msg.fileServer = this.server;
+			Message resMsg = msg.handle();
+			
+//		int numRead = -1;
+//			numRead = channel.read(buffer); // return value 가 -1 이면 끊긴것 
+//			if(numRead == -1){
+//				System.out.println("numRead is -1");
+//				channel.close();
+//				key.cancel();
+//				return;
+//			}
+			
+			ObjectOutputStream outputObj = new ObjectOutputStream(channel.socket().getOutputStream());
+			outputObj.writeObject(resMsg);
+			
+		}
+		catch(ClassNotFoundException e){
+			System.out.println("ClassNotFoundException");
+		}
+		catch(IOException e){
+			System.out.println("IoException");
+			e.printStackTrace();
+			try {
+				channel.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			key.cancel();
+			System.out.println("Connection closed.");
+			return;
+		}
+	}
+}

@@ -1,0 +1,27 @@
+//import java.io.BufferedReader;
+//import java.io.InputStreamReader;
+
+public class FileServer {
+	int port;
+	
+	public FileServer(int port) {
+		this.port = port;
+	}
+	
+	public void start() {
+		try{
+			createWorkThreads(4);
+			for(int i = 0; i<4; i++){
+				Runnable run = new FileThread(i);
+				Thread thread = new Thread(run);
+				thread.start();
+			}
+			Runnable eRun = new EventManager(port);
+			Thread eventThread = new Thread(eRun);
+			eventThread.start();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+}  

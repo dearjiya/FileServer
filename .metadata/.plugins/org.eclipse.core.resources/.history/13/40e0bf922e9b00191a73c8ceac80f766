@@ -1,0 +1,90 @@
+package Parser;
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.channels.SocketChannel;
+
+import Message.Protocol;
+import Server.FileServer;
+
+
+public class FileServerParser {
+	FileServer fileServer;
+	public FileServerParser(FileServer server){
+		this.fileServer = server;
+	}
+
+	public String parse(String cmd) {
+		FunctionCall func = new FunctionCall();
+		String sp[] = cmd.split(" ");
+		String response = "";
+		
+		switch (sp[0]) {
+		case Protocol.CONNECT_TO:
+			System.out.println("Connect to " + sp[1]);
+			String ipPort[] = sp[1].split(":");
+			if(ipPort.length != 2){
+				// 잘못된 메시지 클라이언트에게 알려주는 부분 나중에 구현 필요
+				response = "Wrong Message";
+			}
+			String ip = ipPort[0];
+			String port = ipPort[1];
+			SocketChannel remoteChannel = func.RequireConnect(ip,port);
+			if(remoteChannel == null){
+				// 연결실패
+				response = "Failed Connection";
+			}
+			else{
+				this.fileServer.remoteServer = remoteChannel;
+				response = "Success Connection";
+			}
+			break;
+		case Protocol.SEND_FILE:
+			// SEND만 하고 파일 이름 보내지 않았을 경우 처리 필요
+			
+			FileInputStream fin;
+			
+			System.out.println("Try to send file (filename: " + sp[1] + ")");
+			
+			if(this.fileServer.remoteServer == null){
+				// Connect 요청 필요
+				response = "Require to CONNECT First";
+			}
+			else{
+				long fileSize;
+				String filePath = sp[1];
+				File sendFile = new File(filePath);
+				fin = new FileInputStream(sendFile);
+				if(sendFile.exists()){
+					fileSize = sendFile.length();
+				}
+				else{
+					response = "No Such File exists";
+					break;
+				}
+				
+				byte[] buffer = new byte[(int) fileSize];
+				// 파일 4기가 넘으면 문제가 됨
+				int data = fin.read(buffer);
+				
+				if (fileSize != data) {
+					response = "Critical Error!!";
+					break;
+				}
+				
+				fin.close();
+				
+				FileTransferMessage ftMsg = new FileTransferMessage();
+				response = "Start Send File";
+			}
+			
+			break;
+		default:
+			response = "Unknown Protocol";
+			System.out.println("Unknown Protocol");
+		}
+		
+		return response;
+	}
+
+	
+}

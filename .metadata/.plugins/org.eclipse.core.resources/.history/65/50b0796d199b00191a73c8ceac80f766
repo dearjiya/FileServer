@@ -1,0 +1,13 @@
+package Message;
+
+import java.io.Serializable;
+
+import FileServer;
+
+public abstract class Message implements Serializable {
+
+	public FileServer fileServer;
+
+	public abstract void handle();
+
+}

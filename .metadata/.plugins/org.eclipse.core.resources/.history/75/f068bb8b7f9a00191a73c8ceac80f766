@@ -1,0 +1,18 @@
+
+
+public class FileThread implements Runnable {
+	int myId;
+	public FileThread(int id){
+		myId = id;
+	}
+	public void run() {
+		while(true){
+			try {
+				Thread.sleep(2000);
+				System.out.println("I slept 2seconds");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+}

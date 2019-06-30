@@ -1,0 +1,10 @@
+package Message;
+
+public class FileTransferMessage extends Message{
+
+	@Override
+	public Message handle() {
+		return null;
+	}
+
+}

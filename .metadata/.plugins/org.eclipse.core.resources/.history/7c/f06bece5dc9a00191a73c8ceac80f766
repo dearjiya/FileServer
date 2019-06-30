@@ -1,0 +1,45 @@
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
+
+//import java.io.BufferedReader;
+//import java.io.InputStreamReader;
+
+public class FileServer {
+	String myHost;
+	int serverPort;
+	String remoteServerHost;
+	int remoteServerPort;
+	private static final int numOfThreads = 4;
+	SocketChannel remoteServer;
+	
+	public FileServer(String myHost, int serverPort, String remoteServerHost, int remoteServerPort) {
+		this.myHost = myHost;
+		this.serverPort = serverPort;
+		this.remoteServerHost = remoteServerHost;
+		this.remoteServerPort = remoteServerPort;
+	}
+	
+	public void start() {
+		try{
+			createWorkThreads(numOfThreads);
+			
+			Runnable eRun = new EventManager(this);
+			Thread eventThread = new Thread(eRun);
+			eventThread.start();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	
+
+	private void createWorkThreads(int numOfThreads) {
+		for(int i = 0; i < numOfThreads; i++){
+			Runnable run = new FileThread(i);
+			Thread thread = new Thread(run);
+			thread.start();
+		}
+	}
+}  

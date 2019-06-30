@@ -1,0 +1,8 @@
+
+public class Main {
+	private static final int SERVER_PORT = 20001;
+	public static void main(String[] args) {
+		FileServer server = new FileServer(MY_PORT);
+		server.start();
+	}
+}

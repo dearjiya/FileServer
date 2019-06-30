@@ -1,0 +1,9 @@
+
+public class FunctionCall {
+	public boolean RequireConnect(String connectAddress){
+		
+		
+		
+		return false;
+	}
+}

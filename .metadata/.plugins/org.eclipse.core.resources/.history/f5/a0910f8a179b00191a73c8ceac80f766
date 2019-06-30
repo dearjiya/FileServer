@@ -1,0 +1,10 @@
+package Message;
+
+public class CmdMessage extends Message {
+	private static final long serialVersionUID = 1L;
+	String message;
+	
+	public CmdMessage(String msg){
+		message = msg;
+	}
+}

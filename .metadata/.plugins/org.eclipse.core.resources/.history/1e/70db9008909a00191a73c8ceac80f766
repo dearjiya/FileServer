@@ -1,0 +1,18 @@
+
+public class FileServerParser {
+	public FileServerParser(){
+		
+	}
+
+	public void parse(String cmd) {
+		String sp[] = cmd.split(" ");
+		
+		switch (sp[0]) {
+		case Protocol.SEND_FILE:
+			break;
+		default:
+			System.out.println("Unknown Protocol");
+		}
+	}
+
+}

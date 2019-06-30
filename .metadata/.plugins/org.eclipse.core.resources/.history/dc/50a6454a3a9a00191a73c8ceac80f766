@@ -1,0 +1,27 @@
+//package nio;
+//import java.io.BufferedReader;
+//import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.ServerSocket;
+
+
+public class FileServer {
+	public static void main(String[] args){
+		try{
+			ServerSocket s_socket = new ServerSocket(8888);
+			Socket c_socket = s_socket.accept();
+			
+			OutputStream output_data = c_socket.getOutputStream();
+			
+			String sendDataString = "Welcome to My Server";
+			output_data.write(sendDataString.getBytes());
+			
+			s_socket.close();
+			c_socket.close();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+}

@@ -1,0 +1,23 @@
+//import java.io.BufferedReader;
+//import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+
+public class FileServer {
+	public static void main(String[] args) {
+		try{
+			Runnable run = new FileThread();
+			Thread thread = new Thread(run);
+			thread.start();
+			EventManager em = new EventManager();
+			Eventmanager.start();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+}  

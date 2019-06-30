@@ -1,0 +1,31 @@
+package Message;
+
+import Parser.FileServerParser;
+
+public class CmdMessage extends Message {
+	private static final long serialVersionUID = 1L;
+	String message;
+	
+	public CmdMessage(String msg){
+		message = msg;
+	}
+
+	@Override
+	public Message handle() {
+		System.out.println("CmdMessage read: " + message);
+		FileServerParser parser = new FileServerParser(fileServer);
+		String resMessage = "";
+		
+		try {
+			resMessage = parser.parse(message);
+		} catch (Exception e) {
+			System.out.println("Message: " + e);
+			
+			resMessage = "Unknown error!!";
+		}
+		
+		ResponseToClientMessage resMsg = new ResponseToClientMessage(resMessage);
+		
+		return resMsg;
+	}
+}

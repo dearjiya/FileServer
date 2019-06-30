@@ -1,0 +1,6 @@
+
+public class FunctionCall {
+	public bool RequireConnect(string connectAddress){
+		return false;
+	}
+}

@@ -1,0 +1,14 @@
+package Message;
+
+public class ResponseToClientMessage extends Message{
+
+	
+	public ResponseToClientMessage(){
+		
+	}
+	@Override
+	public void handle() {
+		
+	}
+	
+}

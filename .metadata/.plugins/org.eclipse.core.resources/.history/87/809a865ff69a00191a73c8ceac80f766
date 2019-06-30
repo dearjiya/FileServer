@@ -1,0 +1,22 @@
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
+
+
+public class FunctionCall {
+	public boolean RequireConnect(String ip, string port){
+		try{
+			SocketChannel socket = SocketChannel.open();
+			socket.configureBlocking(true);
+			
+			System.out.println("Require Connection");
+			socket.connect(new InetSocketAddress("127.0.0.1", 10002));
+	        System.out.println("Connection Success");
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		
+		return false;
+	}
+}

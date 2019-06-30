@@ -1,0 +1,29 @@
+//import java.io.BufferedReader;
+//import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+
+public class FileServer {
+	public static void main(String[] args) {
+		try{
+			ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+			serverSocketChannel.configureBlocking(true);//블로킹방식
+			serverSocketChannel.bind(new InetSocketAddress(10001));
+			
+			while(true){
+				SocketChannel socketChannel = serverSocketChannel.accept();
+			}
+			
+			String sendDataString = "Welcome to My Server";
+			output_data.write(sendDataString.getBytes());
+			
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+}  

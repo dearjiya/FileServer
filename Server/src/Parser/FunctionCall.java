@@ -1,0 +1,27 @@
+package Parser;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+
+
+public class FunctionCall {
+	
+	public SocketChannel RequireConnect(String ip, String port){
+		try{
+			SocketChannel socket = SocketChannel.open();
+			socket.configureBlocking(true);
+			
+			System.out.println("Require Connection");
+			socket.connect(new InetSocketAddress(ip, Integer.parseInt(port) ));
+	        System.out.println("Connection Success");
+
+	        return socket;
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+}

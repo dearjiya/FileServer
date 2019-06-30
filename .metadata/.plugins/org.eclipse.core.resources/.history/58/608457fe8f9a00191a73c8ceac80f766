@@ -1,0 +1,11 @@
+
+public class FileServerParser {
+	public FileServerParser(){
+		
+	}
+
+	public void parse(String cmd) {
+		String sp[] = cmd.split(" ");
+	}
+
+}

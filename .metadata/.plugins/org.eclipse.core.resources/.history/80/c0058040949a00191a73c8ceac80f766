@@ -1,0 +1,32 @@
+//import java.io.BufferedReader;
+//import java.io.InputStreamReader;
+
+public class FileServer {
+	int port;
+	private static final int numOfThreads = 4;
+	
+	public FileServer(int port) {
+		this.port = port;
+	}
+	
+	public void start() {
+		try{
+			createWorkThreads(numOfThreads);
+			
+			Runnable eRun = new EventManager(this);
+			Thread eventThread = new Thread(eRun);
+			eventThread.start();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	private void createWorkThreads(int numOfThreads) {
+		for(int i = 0; i < numOfThreads; i++){
+			Runnable run = new FileThread(i);
+			Thread thread = new Thread(run);
+			thread.start();
+		}
+	}
+}  

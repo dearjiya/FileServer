@@ -1,0 +1,25 @@
+//import java.io.BufferedReader;
+//import java.io.InputStreamReader;
+
+public class FileServer {
+	
+	private void MainServer(){
+		try{
+			for(int i = 0; i<4; i++){
+				Runnable run = new FileThread(i);
+				Thread thread = new Thread(run);
+				thread.start();
+			}
+			Runnable eRun = new EventManager();
+			Thread eventThread = new Thread(eRun);
+			eventThread.start();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	public static void main(String[] args) {
+		FileS
+	}
+	
+}  

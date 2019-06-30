@@ -1,0 +1,143 @@
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.channels.Selector;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+
+public class EventManager implements Runnable {
+	
+	private Selector selector;
+	private FileServer server;
+	
+	public EventManager(FileServer fileServer) {
+		this.server = fileServer;
+	}
+
+	public void run() {
+		try {
+
+			selector = Selector.open();
+			ServerSocketChannel serverSocketChannel = ServerSocketChannel
+					.open();
+			serverSocketChannel.configureBlocking(false);// 블로킹방식
+			serverSocketChannel.bind(new InetSocketAddress(server.serverPort));
+			serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+			System.out.println("[" + server.serverPort +"] Server Start");
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		while (true) {
+			try{
+				selector.select();
+				System.out.println("Something selected");
+				
+				Iterator<?> keys = selector.selectedKeys().iterator();
+				
+				while(keys.hasNext()){
+					SelectionKey key = (SelectionKey) keys.next();
+					keys.remove();
+					
+					if(!key.isValid()){
+						continue;
+					}
+					if(key.isAcceptable()){
+						accept(key);
+					}
+					else if(key.isReadable()){
+						readData(key);
+					}
+				} 
+				
+			}catch (IOException e){
+				e.printStackTrace();
+			}
+
+		}
+	}
+	
+	private void connectToFileReceiveServer(SocketChannel channel, String host, int port) {
+		while (true) {
+			try {
+				channel = SocketChannel.open(new InetSocketAddress(host, port));
+			} catch (IOException e) {
+				System.out.println("Failed to connect to RemoteServer");
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				continue;
+			}
+			break;
+		}
+	}
+	private void accept(SelectionKey key){
+		ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
+		try{
+			SocketChannel channel= serverChannel.accept();
+			channel.configureBlocking(false);
+			channel.register(selector, SelectionKey.OP_READ);
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+	private void readData(SelectionKey key) throws IOException{
+		SocketChannel channel = (SocketChannel) key.channel();
+		ByteBuffer buffer = ByteBuffer.allocate(1024);
+		int numRead = -1;
+		
+		try{
+			numRead = channel.read(buffer);
+			if(numRead == -1){
+				channel.close();
+				key.cancel();
+				return;
+			}
+		}
+		catch(IOException e){
+			try {
+				channel.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			key.cancel();
+			System.out.println("Connection closed.");
+			return;
+		}
+		System.out.println(buffer.array().length);
+		FileServerParser parser = new FileServerParser(server);
+		String response = parser.parse(new String(buffer.array()).trim());
+		Charset charset = Charset.forName("UTF-8");
+		ByteBuffer byteBuffer = charset.encode(response);
+		channel.write(byteBuffer);
+		System.out.println("ToClient: "+byteBuffer);
+	}
+}
+
+// SocketChannel socketChannel = serverSocketChannel.accept();
+// InetSocketAddress inetSocketAddress = (InetSocketAddress)
+// socketChannel.getRemoteAddress();
+// System.out.println("Connected: " + inetSocketAddress.getHostName());
+//
+// Charset charset = Charset.forName("UTF-8");
+//
+// //클라이언트로부터 글자 받기
+// ByteBuffer byteBuffer = ByteBuffer.allocate(100);
+// socketChannel.read(byteBuffer);
+// byteBuffer.flip();
+// System.out.println("Received Data: " +
+// charset.decode(byteBuffer).toString());
+//
+// byteBuffer = charset.encode("Hello CLient");
+// socketChannel.write(byteBuffer);
+//
+// System.out.println("Sending Success");
+// }

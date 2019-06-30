@@ -1,0 +1,56 @@
+import java.nio.channels.SocketChannel;
+
+
+public class FileServerParser {
+	FileServer fileServer;
+	public FileServerParser(FileServer server){
+		this.fileServer = server;
+	}
+
+	public String parse(String cmd) {
+		FunctionCall func = new FunctionCall();
+		String sp[] = cmd.split(" ");
+		String response = "";
+		
+		switch (sp[0]) {
+		case Protocol.CONNECT_TO:
+			System.out.println("Connect to " + sp[1]);
+			String ipPort[] = sp[1].split(":");
+			if(ipPort.length != 2){
+				// 잘못된 메시지 클라이언트에게 알려주는 부분 나중에 구현 필요
+				response = "Wrong Message";
+			}
+			String ip = ipPort[0];
+			String port = ipPort[1];
+			SocketChannel remoteChannel = func.RequireConnect(ip,port);
+			if(remoteChannel == null){
+				// 연결실패
+				response = "Failed Connection";
+			}
+			else{
+				this.fileServer.remoteServer = remoteChannel;
+				response = "Success Connection";
+			}
+			break;
+		case Protocol.SEND_FILE:
+			System.out.println("Try to send file (filename: " + sp[1] + ")");
+			
+			if(this.fileServer.remoteServer == null){
+				// Connect 요청 필요
+				response = "Require to Connect First";
+				
+			}
+			else{
+				response = "Start Send File";
+			}
+			
+			break;
+		default:
+			System.out.println("Unknown Protocol");
+		}
+		
+		return response;
+	}
+
+	
+}

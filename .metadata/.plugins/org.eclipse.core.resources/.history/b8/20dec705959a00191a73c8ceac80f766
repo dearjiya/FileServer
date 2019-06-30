@@ -1,0 +1,9 @@
+
+public class Main {
+	private static final int MY_PORT = 10001;
+	private static final int REMOTE_SERVER_PORT = 20001;
+	public static void main(String[] args) {
+		FileServer server = new FileServer(MY_PORT, CLIENT_PORT);
+		server.start();
+	}
+}

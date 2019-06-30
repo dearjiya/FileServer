@@ -1,0 +1,9 @@
+package Message;
+
+import java.io.Serializable;
+
+iInterface Message implements Serializable {
+
+	public abstract void handle();
+
+}

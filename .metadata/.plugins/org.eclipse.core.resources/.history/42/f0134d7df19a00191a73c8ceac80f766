@@ -1,0 +1,22 @@
+
+public class FileServerParser {
+	public FileServerParser(){
+		
+	}
+
+	public void parse(String cmd) {
+		String sp[] = cmd.split(" ");
+		
+		switch (sp[0]) {
+		case Protocol.CONNECT_TO:
+			System.out.println("Connect to " + sp[1].trim());
+			break;
+		case Protocol.SEND_FILE:
+			System.out.println("Try to send file (filename: " + sp[1].trim() + ")");
+			break;
+		default:
+			System.out.println("Unknown Protocol");
+		}
+	}
+
+}

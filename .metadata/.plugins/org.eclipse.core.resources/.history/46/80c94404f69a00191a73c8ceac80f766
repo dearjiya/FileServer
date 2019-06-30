@@ -1,0 +1,26 @@
+
+public class FileServerParser {
+	public FileServerParser(){
+		
+	}
+
+	public void parse(String cmd) {
+		FunctionCall func = new FunctionCall();
+		String sp[] = cmd.split(" ");
+		
+		switch (sp[0]) {
+		case Protocol.CONNECT_TO:
+			System.out.println("Connect to " + sp[1]);
+			String ipPort[] = sp[1].split(":");
+			String ip = ipPort[0];
+			func.RequireConnect(sp[1]);
+			break;
+		case Protocol.SEND_FILE:
+			System.out.println("Try to send file (filename: " + sp[1] + ")");
+			break;
+		default:
+			System.out.println("Unknown Protocol");
+		}
+	}
+
+}

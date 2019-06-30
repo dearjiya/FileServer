@@ -1,0 +1,18 @@
+//import java.io.BufferedReader;
+//import java.io.InputStreamReader;
+
+public class FileServer {
+	public static void main(String[] args) {
+		try{
+			Runnable run = new FileThread();
+			Thread thread = new Thread(run);
+			thread.start();
+			EventManager em = new EventManager();
+			em.start();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+}  

@@ -1,0 +1,17 @@
+import java.nio.channels.SocketChannel;
+
+
+public class FunctionCall {
+	public boolean RequireConnect(String connectAddress){
+		try{
+			SocketChannel socket = SocketChannel.open();
+			
+			
+		}catch(Exception e){
+			e.getStackTrace();
+		}
+		
+		
+		return false;
+	}
+}
