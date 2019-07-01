@@ -2,6 +2,8 @@ package Message;
 
 public class FileTransferMessage extends Message{
 	
+	private static final long serialVersionUID = 1L;
+	
 	long size;
 	String filePath;
 	byte[] buff;

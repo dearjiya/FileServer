@@ -1,7 +1,12 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
+import java.util.Properties;
 import java.util.Scanner;
 
 import Message.CmdMessage;
@@ -10,26 +15,36 @@ import Message.ResponseToClientMessage;
 import Message.ServerSocketForObject;
 
 public class Client {
+	
+	static String serverAddress;
+	static String serverPort;
 
     public static void main(String[] args) {
     	
     	try{
+    		LoadConfig("./config/clientconfig.properties");
+    		
     		SocketChannel socketChannel = SocketChannel.open();
             socketChannel.configureBlocking(true);
-
-            System.out.println("Require Connection");
-            socketChannel.connect(new InetSocketAddress("127.0.0.1", 10001));
+            
+            System.out.println("Require Connection to server");
+            socketChannel.connect(new InetSocketAddress(serverAddress, Integer.parseInt(serverPort)));
             System.out.println("Connection Success");
             
             Scanner sc = new Scanner(System.in);
             
             while(true){
-            	System.out.print("Cmd > ");
+            	System.out.println("You can send command Message.");
+            	System.out.println("1.CONNECT 2.SEND 3.QUIT: q");
+            	System.out.print("Command > ");
             	
             	// Input 받아 명령어 보내기
             	String msg = sc.nextLine();
-            	if (msg.equals("q"))
+            	if (msg.equals("QUIT")) {
+            		socketChannel.close();
             		break;
+            	}
+            	
             	CmdMessage cmd = new CmdMessage(msg);
             	ServerSocketForObject sock = new ServerSocketForObject(socketChannel);
             	sock.send((Message)cmd);
@@ -45,10 +60,27 @@ public class Client {
             sc.close();
 //            if (socketChannel.isOpen())
 //                socketChannel.close();
-    	}catch(Exception e){
+    	}catch(NumberFormatException e){
+    		e.printStackTrace();
+    	}catch(Exception e ) {
     		e.printStackTrace();
     	}
-        
-
+    }
+    
+    public static void LoadConfig(String path) {
+    	
+    	try {
+    		Properties prop = new Properties();
+    		FileInputStream fis = new FileInputStream(path);
+    		prop.load(new java.io.BufferedInputStream(fis));
+    		
+    		serverAddress = prop.getProperty("ServerAddress");
+    		serverPort = prop.getProperty("PortNum");
+    		
+    	}catch(FileNotFoundException e) {
+    		System.out.println("FileNotFoundException");    		
+    	}catch(IOException e) {
+    		System.out.println("IOException");  
+    	}
     }
 }

@@ -1,11 +1,15 @@
 package Server;
 import java.nio.channels.SocketChannel;
+import java.util.List;
 
 public class FileServer {
 	int serverPort;
 	
 	private static final int numOfThreads = 4;
 	public SocketChannel remoteServer = null;
+	public String configPath = "./config/serverconfig.properties";
+	
+//	List<Client> connections new Vector<Client>();
 	
 	public FileServer(int serverPort) {
 		this.serverPort = serverPort;

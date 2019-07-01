@@ -2,7 +2,9 @@ package Parser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.channels.SocketChannel;
+import java.util.Properties;
 
 import Message.FileTransferMessage;
 import Message.Protocol;
@@ -23,8 +25,21 @@ public class FileServerParser {
 		
 		switch (sp[0]) {
 		case Protocol.CONNECT_TO:
+			int len = sp.length;
+			String tmpPath = "";
+			
+			if(len == 1) {
+				// ServerConfig remoteipport 로 접속
+				tmpPath = GetRemoteConfig(this.fileServer.configPath);
+			}
+			else if((int) len == 2) {
+				tmpPath = sp[1];
+			}
+			else {
+				
+			}
 			System.out.println("Connect to " + sp[1]);
-			String ipPort[] = sp[1].split(":");
+			String ipPort[] = tmpPath.split(":");
 			if(ipPort.length != 2){
 				// 잘못된 메시지 클라이언트에게 알려주는 부분 나중에 구현 필요
 				response = "Wrong Message";
@@ -92,6 +107,25 @@ public class FileServerParser {
 		
 		return response;
 	}
-
+	
+	
+	private String GetRemoteConfig(String path) {
+		String ipPort;
+		try {
+    		Properties prop = new Properties();
+    		FileInputStream fis = new FileInputStream(path);
+    		prop.load(new java.io.BufferedInputStream(fis));
+    		
+    		ipPort = prop.getProperty("RemoteIpPort");
+    		return ipPort;
+    		
+    	}catch(FileNotFoundException e) {
+    		System.out.println("FileNotFoundException");    		
+    	}catch(IOException e) {
+    		System.out.println("IOException");  
+    	}
+		
+		return null;
+	}
 	
 }

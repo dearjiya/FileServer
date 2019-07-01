@@ -1,11 +1,6 @@
 package Server;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -28,8 +23,7 @@ public class EventManager implements Runnable {
 		try {
 
 			selector = Selector.open();
-			ServerSocketChannel serverSocketChannel = ServerSocketChannel
-					.open();
+			ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
 			serverSocketChannel.configureBlocking(false);// 블로킹방식
 			serverSocketChannel.bind(new InetSocketAddress(server.serverPort));
 			serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
@@ -71,11 +65,15 @@ public class EventManager implements Runnable {
 	
 	private void accept(SelectionKey key){
 		System.out.println("Accept");
-		ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
 		try{
+			ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
 			SocketChannel channel= serverChannel.accept();
+			
+			System.out.println("[Connect OK: "+ channel.getRemoteAddress() + ": " + Thread.currentThread().getName() + "]");
+			
 			channel.configureBlocking(false);
 			channel.register(selector, SelectionKey.OP_READ);
+			System.out.println(channel.toString() + "client is connected");
 		}
 		catch(IOException e){
 			e.printStackTrace();
