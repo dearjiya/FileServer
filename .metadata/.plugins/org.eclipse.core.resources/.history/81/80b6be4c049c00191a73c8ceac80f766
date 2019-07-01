@@ -1,0 +1,30 @@
+package Message;
+
+import java.io.File;
+
+public class FileRequestMessage extends Message {
+
+	String fileName;
+	public FileRequestMessage(String reqFileName) {
+		fileName = reqFileName;
+	}
+
+	public Message handle() {
+		
+		String filePath = this.fileServer.configParameters.get("FileRepository") + "\\" +fileName;
+		System.out.println("Request " + filePath);
+		File reqFile = new File(filePath);
+		if(reqFile.exists()){
+			fileSize = reqFile.length();
+		}
+		else{
+			response = "No Such File exists";
+			break;
+		}
+		
+		
+		
+		return null;
+	}
+
+}

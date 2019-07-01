@@ -1,0 +1,46 @@
+package Message;
+
+import java.io.File;
+import java.io.FileOutputStream;
+
+import Util.AESencdec;
+
+public class FileTransferMessage extends Message{
+	
+	private static final long serialVersionUID = 1L;
+	
+	long size;
+	String fileName;
+	byte[] buff;
+	
+	public FileTransferMessage(long _size, String _fileName, byte[] _buff){
+		byte[] encBuff;
+		try{
+			byte[] encBuff = AESencdec.encrypt(buff);
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		size = _size;
+		fileName = _fileName;
+		buff = encBuff;
+	}
+	
+	@Override
+	public Message handle() {
+		System.out.println(size +","+ fileName +","+buff.length);
+		String filePath = fileServer.configParameters.get("FileRepository") + "\\" + fileName;
+		
+		try{
+			File outFile = new File(filePath);
+			FileOutputStream fileOutputStream = new FileOutputStream(outFile);
+			fileOutputStream.write(buff);
+			fileOutputStream.close();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+}

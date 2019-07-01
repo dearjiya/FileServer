@@ -1,0 +1,7 @@
+package Message;
+
+public class Protocol {
+	public static final String CONNECT_TO = "CONNECT";
+	public static final String PUSH_FILE = "SEND";
+	public static final String STOP_SERVER = "STOP";
+}

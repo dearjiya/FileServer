@@ -1,0 +1,9 @@
+package Message;
+
+public class FileRequestMessage extends Message {
+
+	public Message handle() {
+		return null;
+	}
+
+}

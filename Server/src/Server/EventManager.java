@@ -12,11 +12,12 @@ import Message.ServerSocketForObject;
 
 public class EventManager implements Runnable {
 	
-	private Selector selector;
+	public Selector selector;
 	private FileServer server;
 	
 	public EventManager(FileServer fileServer) {
 		this.server = fileServer;
+		this.server.eventManager = this;
 	}
 
 	public void run() {
@@ -36,7 +37,9 @@ public class EventManager implements Runnable {
 		
 		while (true) {
 			try{
+				System.out.println("BeforeSelect");
 				selector.select();
+				System.out.println("AfterSElect");
 				System.out.println("Something selected");
 				
 				Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
@@ -88,6 +91,7 @@ public class EventManager implements Runnable {
 			ServerSocketForObject sock = new ServerSocketForObject(channel);
 			Message msg = (Message)sock.recv();
 			msg.fileServer = this.server;
+			System.out.println("socket: " + channel.getRemoteAddress());
 			Message resMsg = msg.handle();
 			
 //		int numRead = -1;
@@ -98,6 +102,10 @@ public class EventManager implements Runnable {
 //				key.cancel();
 //				return;
 //			}
+			
+			if(resMsg == null){
+				return;
+			}
 			
 			sock = new ServerSocketForObject(channel);
 			sock.send(resMsg);

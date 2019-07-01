@@ -1,0 +1,72 @@
+package Parser;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.Properties;
+
+public class ConfigLoader {
+	public String filepath;
+	public ConfigLoader(String filepath) {
+		this.filepath = filepath;
+	}
+	
+	public String getValue(String key) {
+		String value = "";
+		try {
+			Properties prop = new Properties();
+			prop.load(preparePropertyFile(new File(filepath)));
+			value = prop.getProperty(key);
+		}catch(FileNotFoundException e) {
+			System.out.println("FileNotFoundException");    		
+		}catch(IOException e) {
+			System.out.println("IOException");  
+		}
+		return value;
+	}
+	
+	private static Reader preparePropertyFile(File file) throws IOException {
+
+	    BufferedReader reader = new BufferedReader(new FileReader(file));
+	    StringBuilder result = new StringBuilder();
+
+	    String line;
+	    boolean endingBackslash = false;
+
+	    while ((line = reader.readLine()) != null) {
+	        line = line.trim();
+	        if (endingBackslash) {
+
+	            // if the line is empty, is a comment or holds a new property
+	            // definition the backslash found at the end of the previous
+	            // line is not for a multiline property value.
+	            if (line.isEmpty()
+	                    || line.startsWith("#")
+	                    || line.matches("^\\w+(\\.\\w+)*=")) {
+
+	                result.append("\\\\");
+	            }
+	        }
+
+	        // if a backslash is found at the end of the line remove it
+	        // and decide what to do depending on the next line.
+	        if (line.endsWith("\\")) {
+	            endingBackslash = true;
+	            line = line.substring(0, line.length() - 1);
+	        } else {
+	            endingBackslash = false;
+	        }
+	        result.append(line.replace("\\", "\\\\"));
+	    }
+	    if (endingBackslash) {
+	        result.append("\\\\");
+	    }
+	    System.out.println(result);
+	    return new StringReader(result.toString());
+	}
+}

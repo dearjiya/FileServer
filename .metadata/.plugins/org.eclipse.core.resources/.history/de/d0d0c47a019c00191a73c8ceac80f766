@@ -1,0 +1,71 @@
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
+import java.util.Scanner;
+
+import Message.CmdMessage;
+import Message.Message;
+import Message.ResponseToClientMessage;
+import Message.ServerSocketForObject;
+import Parser.ConfigLoader;
+
+public class Client {
+	
+	static String serverAddress;
+	static String serverPort;
+
+    public static void main(String[] args) {
+    	
+    	try{
+    		ConfigLoader loader = new ConfigLoader("./config/clientconfig.properties"); 
+    		serverAddress = loader.getValue("ServerAddress");
+			serverPort = loader.getValue("PortNum");
+			System.out.println(serverPort);
+    		
+    		SocketChannel socketChannel = SocketChannel.open();
+            socketChannel.configureBlocking(true);
+            
+            System.out.println("Require Connection to server");
+            socketChannel.connect(new InetSocketAddress(serverAddress, Integer.parseInt(serverPort)));
+            System.out.println("Connection Success");
+            
+            Scanner sc = new Scanner(System.in);
+            
+            while(true){
+            	System.out.println("You can send command Message.");
+            	System.out.println("1.CONNECT 2.SEND 3.QUIT: q");
+            	System.out.print("Command > ");
+            	
+            	// Input 받아 명령어 보내기
+            	String msg = sc.nextLine();
+            	if (msg.equals("QUIT")) {
+            		socketChannel.close();
+            		break;
+            	}
+            	
+            	CmdMessage cmd = new CmdMessage(msg);
+            	ServerSocketForObject sock = new ServerSocketForObject(socketChannel);
+            	sock.send((Message)cmd);
+            	
+            	System.out.println("Sending Success");
+            	
+            	// Server로부터 데이터 받기
+            	ResponseToClientMessage recvMsg = (ResponseToClientMessage)sock.recv();
+            	
+            	System.out.println("Received Data : " + recvMsg.resMessage);
+            }
+            
+            sc.close();
+//            if (socketChannel.isOpen())
+//                socketChannel.close();
+    	}catch(NumberFormatException e){
+    		e.printStackTrace();
+    	}catch(Exception e ) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static void LoadConfig(String path) {
+    	
+    	
+    }
+}

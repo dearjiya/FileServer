@@ -1,0 +1,10 @@
+package Parser;
+
+public class ConfigLoader {
+	public String filepath;
+	public ConfigLoader(String filepath) {
+		this.filepath = filepath;
+	}
+	
+	
+}

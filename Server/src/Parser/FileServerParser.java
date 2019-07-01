@@ -3,9 +3,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Properties;
 
+import Message.FileRequestMessage;
 import Message.FileTransferMessage;
 import Message.Protocol;
 import Message.ServerSocketForObject;
@@ -23,14 +25,14 @@ public class FileServerParser {
 		String sp[] = cmd.split(" ");
 		String response = "";
 		
-		switch (sp[0]) {
+		switch (sp[0].toUpperCase()) {
 		case Protocol.CONNECT_TO:
 			int len = sp.length;
 			String tmpPath = "";
 			
 			if(len == 1) {
 				// ServerConfig remoteipport 로 접속
-				tmpPath = GetRemoteConfig(this.fileServer.configPath);
+				tmpPath = this.fileServer.configParameters.get("RemoteIpPort");
 			}
 			else if((int) len == 2) {
 				tmpPath = sp[1];
@@ -38,7 +40,7 @@ public class FileServerParser {
 			else {
 				
 			}
-			System.out.println("Connect to " + sp[1]);
+			System.out.println("Connect to " + tmpPath);
 			String ipPort[] = tmpPath.split(":");
 			if(ipPort.length != 2){
 				// 잘못된 메시지 클라이언트에게 알려주는 부분 나중에 구현 필요
@@ -55,8 +57,12 @@ public class FileServerParser {
 				this.fileServer.remoteServer = remoteChannel;
 				response = "Success Connection";
 			}
+			
+			remoteChannel.configureBlocking(false);
+			remoteChannel.register(fileServer.eventManager.selector, SelectionKey.OP_READ);
+			
 			break;
-		case Protocol.SEND_FILE:
+		case Protocol.PUSH_FILE:
 			// SEND만 하고 파일 이름 보내지 않았을 경우 처리 필요
 			
 			FileInputStream fin;
@@ -69,7 +75,8 @@ public class FileServerParser {
 			}
 			else{
 				long fileSize;
-				String filePath = sp[1];
+				String filePath = this.fileServer.configParameters.get("FileRepository") + "\\" + sp[1];
+				System.out.println(filePath);
 				File sendFile = new File(filePath);
 				if(sendFile.exists()){
 					fileSize = sendFile.length();
@@ -91,7 +98,7 @@ public class FileServerParser {
 				
 				fin.close();
 				
-				FileTransferMessage ftMsg = new FileTransferMessage(fileSize, filePath, buffer);
+				FileTransferMessage ftMsg = new FileTransferMessage(fileSize, sp[1], buffer,Boolean.parseBoolean(this.fileServer.configParameters.get("FileDataEncrypt")));
 				
 				ServerSocketForObject sock = new ServerSocketForObject(fileServer.remoteServer);
 				sock.send(ftMsg);
@@ -100,6 +107,29 @@ public class FileServerParser {
 			}
 			
 			break;
+		case Protocol.PULL_FILE:
+			if(this.fileServer.remoteServer == null){
+				// Connect 요청 필요
+				response = "Require to CONNECT First";
+			}
+			else{
+				if(sp.length != 2){
+					response = "Enter the filename";
+				}
+				else{
+					String fileName=sp[1];
+					
+					FileRequestMessage fReqMsg = new FileRequestMessage(fileName);
+					ServerSocketForObject sock = new ServerSocketForObject(this.fileServer.remoteServer);
+					sock.send(fReqMsg);
+					response = "File request success";
+				}
+			}
+			
+			break;
+		case Protocol.STOP_SERVER:
+			//response = "Server exited normally";
+			System.exit(0);
 		default:
 			response = "Unknown Protocol";
 			System.out.println("Unknown Protocol");
@@ -107,25 +137,4 @@ public class FileServerParser {
 		
 		return response;
 	}
-	
-	
-	private String GetRemoteConfig(String path) {
-		String ipPort;
-		try {
-    		Properties prop = new Properties();
-    		FileInputStream fis = new FileInputStream(path);
-    		prop.load(new java.io.BufferedInputStream(fis));
-    		
-    		ipPort = prop.getProperty("RemoteIpPort");
-    		return ipPort;
-    		
-    	}catch(FileNotFoundException e) {
-    		System.out.println("FileNotFoundException");    		
-    	}catch(IOException e) {
-    		System.out.println("IOException");  
-    	}
-		
-		return null;
-	}
-	
 }

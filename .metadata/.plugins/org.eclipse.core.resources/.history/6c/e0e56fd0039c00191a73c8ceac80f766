@@ -1,0 +1,13 @@
+package Message;
+
+public class FileRequestMessage extends Message {
+
+	String reqFileName;
+	public FileRequestMessage(String fileName) {
+	}
+
+	public Message handle() {
+		return null;
+	}
+
+}

@@ -1,0 +1,29 @@
+package Parser;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
+public class ConfigLoader {
+	public String filepath;
+	public ConfigLoader(String filepath) {
+		this.filepath = filepath;
+	}
+	
+	public String getValue(String key) {
+		try {
+			Properties prop = new Properties();
+			FileInputStream fis = new FileInputStream(path);
+			prop.load(new java.io.BufferedInputStream(fis));
+			
+			serverAddress = prop.getProperty("ServerAddress");
+			serverPort = prop.getProperty("PortNum");
+			
+		}catch(FileNotFoundException e) {
+			System.out.println("FileNotFoundException");    		
+		}catch(IOException e) {
+			System.out.println("IOException");  
+		}
+	}
+}

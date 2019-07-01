@@ -1,0 +1,18 @@
+package Message;
+
+public class FileRequestMessage extends Message {
+
+	String fileName;
+	public FileRequestMessage(String reqFileName) {
+		fileName = reqFileName;
+	}
+
+	public Message handle() {
+		
+		String filePath = this.fileServer.configParameters.get("FileRepository") + "\\" +fileName;"
+		
+		
+		return null;
+	}
+
+}

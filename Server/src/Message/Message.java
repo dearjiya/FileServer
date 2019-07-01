@@ -1,6 +1,7 @@
 package Message;
 
 import java.io.Serializable;
+import java.nio.channels.SocketChannel;
 
 import Server.FileServer;
 

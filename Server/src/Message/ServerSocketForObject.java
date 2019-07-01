@@ -25,7 +25,8 @@ public class ServerSocketForObject {
 		oos.close();
 		final ByteBuffer wrap = ByteBuffer.wrap(baos.toByteArray());
 		wrap.putInt(0, baos.size() - 4);
-		channel.write(wrap);
+		int nWritten = channel.write(wrap);
+		System.out.println("nWritten: " +nWritten);
 	}
 
 	private final ByteBuffer lengthByteBuffer = ByteBuffer.wrap(new byte[4]);
