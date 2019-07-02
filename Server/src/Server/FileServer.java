@@ -5,8 +5,8 @@ import java.util.HashMap;
 import Parser.ConfigLoader;
 
 public class FileServer {
-	int serverPort;
 	
+	int serverPort;
 	public String serverName;
 	private static final int numOfThreads = 4;
 	public SocketChannel remoteServer = null;
@@ -22,7 +22,7 @@ public class FileServer {
 		configParameters = new HashMap<String, String>();
 	}
 	
-	public void start() {
+	public void startServer() {
 		try{
 			ConfigLoader loader = new ConfigLoader("./config/" + serverName + "_config.properties");
 			configParameters.put("RemoteIpPort", loader.getValue("RemoteIpPort"));
@@ -37,6 +37,21 @@ public class FileServer {
 			
 		}catch(Exception e){
 			e.printStackTrace();
+		}
+	}
+	
+	public void stopServer() {
+		try {
+			if(eventManager.serverSocketChannel != null && eventManager.serverSocketChannel.isOpen()) {
+				eventManager.serverSocketChannel.close();
+			}
+			if(eventManager.selector != null && eventManager.selector.isOpen()) {
+				eventManager.selector.close();
+			}
+			
+		}
+		catch(Exception e) {
+			System.out.println("[Exception] " + e);
 		}
 	}
 

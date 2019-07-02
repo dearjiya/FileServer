@@ -25,39 +25,41 @@ public class ServerSocketForObject {
 		oos.close();
 		final ByteBuffer wrap = ByteBuffer.wrap(baos.toByteArray());
 		wrap.putInt(0, baos.size() - 4);
-		int nWritten = channel.write(wrap);
-		System.out.println("nWritten: " +nWritten);
+		channel.write(wrap);
 	}
 
 	private final ByteBuffer lengthByteBuffer = ByteBuffer.wrap(new byte[4]);
 	private ByteBuffer dataByteBuffer = null;
 	private boolean readLength = true;
 
-	public Serializable recv() throws IOException,
-			ClassNotFoundException {
-		boolean completeRead = false;
-		while (!completeRead) {
-			if (readLength) {
-				channel.read(lengthByteBuffer);
-				if (lengthByteBuffer.remaining() == 0) {
-					readLength = false;
-					dataByteBuffer = ByteBuffer
-							.allocate(lengthByteBuffer.getInt(0));
-					lengthByteBuffer.clear();
-				}
-			} else {
-				channel.read(dataByteBuffer);
-				if (dataByteBuffer.remaining() == 0) {
-					completeRead = true;
-					ObjectInputStream ois = new ObjectInputStream(
-							new ByteArrayInputStream(dataByteBuffer.array()));
-					final Serializable ret = (Serializable) ois.readObject();
-					// clean up
-					dataByteBuffer = null;
-					readLength = true;
-					return ret;
+	public Serializable recv() {
+		try {
+			boolean completeRead = false;
+			while (!completeRead) {
+				if (readLength) {
+					channel.read(lengthByteBuffer);
+					if (lengthByteBuffer.remaining() == 0) {
+						readLength = false;
+						dataByteBuffer = ByteBuffer
+								.allocate(lengthByteBuffer.getInt(0));
+						lengthByteBuffer.clear();
+					}
+				} else {
+					channel.read(dataByteBuffer);
+					if (dataByteBuffer.remaining() == 0) {
+						completeRead = true;
+						ObjectInputStream ois = new ObjectInputStream(
+								new ByteArrayInputStream(dataByteBuffer.array()));
+						final Serializable ret = (Serializable) ois.readObject();
+						// clean up
+						dataByteBuffer = null;
+						readLength = true;
+						return ret;
+					}
 				}
 			}
+		}catch(IOException | ClassNotFoundException e) {
+			System.out.println("[Exception] " + e);
 		}
 		return null;
 	}

@@ -14,6 +14,7 @@ public class EventManager implements Runnable {
 	
 	public Selector selector;
 	private FileServer server;
+	public ServerSocketChannel serverSocketChannel;
 	
 	public EventManager(FileServer fileServer) {
 		this.server = fileServer;
@@ -24,29 +25,31 @@ public class EventManager implements Runnable {
 		try {
 
 			selector = Selector.open();
-			ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+			serverSocketChannel = ServerSocketChannel.open();
 			serverSocketChannel.configureBlocking(false);// 블로킹방식
 			serverSocketChannel.bind(new InetSocketAddress(server.serverPort));
 			serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 
-			System.out.println("[" + server.serverPort +"] Server Start");
+			System.out.println("[" + server.serverName + ":" + server.serverPort +"] Server Start");
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("[Exception] " +  e);
+			if(serverSocketChannel.isOpen()) {
+				server.stopServer();
+			}
+//			e.printStackTrace();
 		}
 		
 		while (true) {
 			try{
-				System.out.println("BeforeSelect");
+				System.out.println("Waiting select..");
 				selector.select();
-				System.out.println("AfterSElect");
-				System.out.println("Something selected");
+				System.out.println("Get selected!");
 				
-				Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+				Iterator<SelectionKey> iteratorKey = selector.selectedKeys().iterator();
 				
-				while(keys.hasNext()){
-					SelectionKey key = (SelectionKey) keys.next();
-					keys.remove();
+				while(iteratorKey.hasNext()){
+					SelectionKey key = (SelectionKey) iteratorKey.next();
 					
 					if(!key.isValid()){
 						continue;
@@ -57,6 +60,8 @@ public class EventManager implements Runnable {
 					else if(key.isReadable()){
 						readData(key);
 					}
+					
+					iteratorKey.remove();
 				} 
 				
 			}catch (IOException e){
@@ -76,7 +81,7 @@ public class EventManager implements Runnable {
 			
 			channel.configureBlocking(false);
 			channel.register(selector, SelectionKey.OP_READ);
-			System.out.println(channel.toString() + "client is connected");
+			System.out.println(channel.toString() + " client is connected");
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -84,7 +89,6 @@ public class EventManager implements Runnable {
 	}
 	
 	private void readData(SelectionKey key) throws IOException{
-		System.out.println("ReadData");
 		SocketChannel channel = (SocketChannel) key.channel();
 		
 		try{
@@ -94,15 +98,7 @@ public class EventManager implements Runnable {
 			System.out.println("socket: " + channel.getRemoteAddress());
 			Message resMsg = msg.handle();
 			
-//		int numRead = -1;
-//			numRead = channel.read(buffer); // return value 가 -1 이면 끊긴것 
-//			if(numRead == -1){
-//				System.out.println("numRead is -1");
-//				channel.close();
-//				key.cancel();
-//				return;
-//			}
-			
+	
 			if(resMsg == null){
 				return;
 			}
@@ -110,11 +106,8 @@ public class EventManager implements Runnable {
 			sock = new ServerSocketForObject(channel);
 			sock.send(resMsg);
 		}
-		catch(ClassNotFoundException e){
-			System.out.println("ClassNotFoundException");
-		}
 		catch(IOException e){
-			System.out.println("IoException");
+			System.out.println("[Exception] " + e);
 			e.printStackTrace();
 			try {
 				channel.close();
@@ -127,3 +120,14 @@ public class EventManager implements Runnable {
 		}
 	}
 }
+
+
+//int numRead = -1;
+//numRead = channel.read(buffer); // return value 가 -1 이면 끊긴것 
+//if(numRead == -1){
+//	System.out.println("numRead is -1");
+//	channel.close();
+//	key.cancel();
+//	return;
+//}
+//

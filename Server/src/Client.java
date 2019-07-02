@@ -1,3 +1,4 @@
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.Scanner;
@@ -16,14 +17,15 @@ public class Client {
     public static void main(String[] args) {
     	
     	try{
+    		System.out.println("Start client!");
     		ConfigLoader loader = new ConfigLoader("./config/clientconfig.properties"); 
     		serverAddress = loader.getValue("ServerAddress");
 			serverPort = loader.getValue("PortNum");
-    		
+
     		SocketChannel socketChannel = SocketChannel.open();
             socketChannel.configureBlocking(true);
             
-            System.out.println("Require Connection to server");
+            System.out.println("Require Connection to " + serverAddress + ":" + serverPort + " ..");
             socketChannel.connect(new InetSocketAddress(serverAddress, Integer.parseInt(serverPort)));
             System.out.println("Connection Success");
             
@@ -31,7 +33,7 @@ public class Client {
             
             while(true){
             	System.out.println("You can send command Message.");
-            	System.out.println("1.CONNECT 2.SEND 3.QUIT: q");
+            	System.out.println("1.CONNECT 2.PUSH 3.PULL 4.LIST 5.STOP SERVER");
             	System.out.print("Command > ");
             	
             	// Input 받아 명령어 보내기
@@ -56,7 +58,12 @@ public class Client {
             sc.close();
 //            if (socketChannel.isOpen())
 //                socketChannel.close();
-    	}catch(NumberFormatException e){
+            
+    	}catch(ConnectException e) {
+    		System.out.println("[Exception] " + e);
+    		System.out.println("Failed connection (Check server state)");
+    	}
+    	catch(NumberFormatException e){
     		e.printStackTrace();
     	}catch(Exception e ) {
     		e.printStackTrace();

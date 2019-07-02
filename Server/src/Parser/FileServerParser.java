@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.List;
 import java.util.Properties;
 
 import Message.FileRequestMessage;
@@ -16,6 +17,8 @@ import Server.FileServer;
 
 public class FileServerParser {
 	FileServer fileServer;
+	String fileNameList;
+	
 	public FileServerParser(FileServer server){
 		this.fileServer = server;
 	}
@@ -78,14 +81,13 @@ public class FileServerParser {
 				String filePath = this.fileServer.configParameters.get("FileRepository") + "\\" + sp[1];
 				System.out.println(filePath);
 				File sendFile = new File(filePath);
-				if(sendFile.exists()){
-					fileSize = sendFile.length();
-				}
-				else{
-					response = "No Such File exists";
+				
+				if(!sendFile.exists()){
+					response = "No Such File exists. PATH: " + filePath;
 					break;
 				}
 				
+				fileSize = sendFile.length();
 				fin = new FileInputStream(sendFile);
 				byte[] buffer = new byte[(int) fileSize];
 				// 파일 4기가 넘으면 문제가 됨
@@ -127,9 +129,40 @@ public class FileServerParser {
 			}
 			
 			break;
+		case Protocol.GET_FILELIST:
+			if(this.fileServer.remoteServer == null){
+				// Connect 요청 필요
+				response = "Require to CONNECT First";
+			}
+			else {
+				if(sp.length != 1) {
+					response = "Wrong LS Command";
+				}
+				else {
+					String filePath = this.fileServer.configParameters.get("FileRepository");
+					File dirFile = new File(filePath);
+					File []fileList = dirFile.listFiles();
+					fileNameList = "";
+					System.out.println("filePath: "+filePath);
+					
+					for(File tempFile : fileList) {
+						if(tempFile.isFile()) {
+							String tempFileName = tempFile.getName();
+							fileNameList += tempFileName +" ";
+							System.out.println("fileName: "+tempFileName);
+							System.out.println(fileNameList);
+						}
+					}
+					
+					response = "This is FileList";
+				}
+			}
+			
+			break;
 		case Protocol.STOP_SERVER:
-			//response = "Server exited normally";
-			System.exit(0);
+			response = "Terminate process is start";
+//			System.exit(0);
+			this.fileServer.stopServer();
 		default:
 			response = "Unknown Protocol";
 			System.out.println("Unknown Protocol");

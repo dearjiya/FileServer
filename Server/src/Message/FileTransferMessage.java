@@ -33,7 +33,7 @@ public class FileTransferMessage extends Message{
 	
 	@Override
 	public Message handle() {
-		System.out.println(size +","+ fileName +","+buff.length);
+		System.out.println("Receive " + fileName + "(size: " + size + ", encryptOpt: " + encrypt + ")" );
 		String filePath = fileServer.configParameters.get("FileRepository") + "\\" + fileName;
 		
 		try{
@@ -45,6 +45,11 @@ public class FileTransferMessage extends Message{
 			FileOutputStream fileOutputStream = new FileOutputStream(outFile);
 			fileOutputStream.write(buff);
 			fileOutputStream.close();
+			
+			ResponseToClientMessage msg = new ResponseToClientMessage("Receive " + fileName + " to ");
+			
+			return msg;
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}

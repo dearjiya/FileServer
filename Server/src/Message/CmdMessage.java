@@ -15,9 +15,11 @@ public class CmdMessage extends Message {
 		System.out.println("CmdMessage read: " + message);
 		FileServerParser parser = new FileServerParser(fileServer);
 		String resMessage = "";
+		String[] listMessage = null;
 		
 		try {
 			resMessage = parser.parse(message);
+			
 		} catch (Exception e) {
 			System.out.println("Message: " + e);
 			
