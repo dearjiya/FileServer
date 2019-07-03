@@ -36,9 +36,8 @@ public class Client {
             	System.out.println("1.CONNECT 2.PUSH 3.PULL 4.LIST 5.STOP SERVER");
             	System.out.print("Command > ");
             	
-            	// Input 받아 명령어 보내기
             	String msg = sc.nextLine();
-            	if (msg.equals("QUIT")) {
+            	if (msg.equals("q")) {
             		socketChannel.close();
             		break;
             	}
@@ -51,7 +50,10 @@ public class Client {
             	
             	// Server로부터 데이터 받기
             	ResponseToClientMessage recvMsg = (ResponseToClientMessage)sock.recv();
-            	
+            	if (recvMsg == null) {
+            		System.out.println("Connection closed");
+            		break;
+            	}
             	System.out.println("Received Data : " + recvMsg.resMessage);
             }
             

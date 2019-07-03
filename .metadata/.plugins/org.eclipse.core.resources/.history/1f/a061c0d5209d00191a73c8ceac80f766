@@ -1,0 +1,58 @@
+package Server;
+import java.nio.channels.SocketChannel;
+import java.util.HashMap;
+
+import Parser.ConfigLoader;
+
+public class FileServer {
+	
+	int serverPort;
+	public String serverName;
+	private static final int numOfThreads = 4;
+	public SocketChannel remoteServer = null;
+	public HashMap<String, String> configParameters;
+	
+	public EventManager eventManager;
+	
+	public FileServer(String serverName) {
+		this.serverName = serverName;
+		configParameters = new HashMap<String, String>();
+	}
+	
+	public void startServer() {
+		try{
+			ConfigLoader loader = new ConfigLoader("./config/" + serverName + "_config.properties");
+			configParameters.put("RemoteIpPort", loader.getValue("RemoteIpPort"));
+			configParameters.put("FileRepository", loader.getValue("FileRepository"));
+			configParameters.put("FileDataEncrypt", loader.getValue("FileDataEncrypt"));
+			configParameters.put("ServerPort", loader.getValue("ServerPort"));
+			this.serverPort = Integer.parseInt(this.configParameters.get("ServerPort"));
+			
+			
+			Runnable eRun = new EventManager(this);
+			Thread eventThread = new Thread(eRun);
+			eventThread.start();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void stopServer() {
+		try {
+			if(eventManager.serverSocketChannel != null && eventManager.serverSocketChannel.isOpen()) {
+				eventManager.serverSocketChannel.close();
+			}
+			if(eventManager.selector != null && eventManager.selector.isOpen()) {
+				eventManager.selector.close();
+			}
+			System.exit(0);
+			
+		}
+		catch(Exception e) {
+			System.out.println("[Exception] " + e);
+			e.printStackTrace();
+		}
+	}
+
+}  

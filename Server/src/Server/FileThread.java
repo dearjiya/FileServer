@@ -10,6 +10,7 @@ public class FileThread implements Runnable {
 		while(true){
 			try {
 				Thread.sleep(6000);
+				System.out.println("thread: " + Thread.currentThread().getName());
 //				System.out.println("["+myId+"]"+"I slept 2seconds");
 			} catch (InterruptedException e) {
 				e.printStackTrace();

@@ -1,4 +1,5 @@
 package Server;
+import java.io.File;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 
@@ -14,22 +15,25 @@ public class FileServer {
 	
 	public EventManager eventManager;
 	
-	//	List<Client> connections new Vector<Client>();
-	
-	public FileServer(String serverName, int serverPort) {
-		this.serverPort = serverPort;
+	public FileServer(String serverName) {
 		this.serverName = serverName;
 		configParameters = new HashMap<String, String>();
 	}
 	
 	public void startServer() {
 		try{
-			ConfigLoader loader = new ConfigLoader("./config/" + serverName + "_config.properties");
+			String configFileName = "./config/" + serverName + "_config.properties";
+			if (!new File(configFileName).exists()) {
+				System.out.println("No such file exists [" + configFileName + "]");
+				System.exit(1);
+			}
+			ConfigLoader loader = new ConfigLoader(configFileName);
 			configParameters.put("RemoteIpPort", loader.getValue("RemoteIpPort"));
 			configParameters.put("FileRepository", loader.getValue("FileRepository"));
 			configParameters.put("FileDataEncrypt", loader.getValue("FileDataEncrypt"));
+			configParameters.put("ServerPort", loader.getValue("ServerPort"));
+			this.serverPort = Integer.parseInt(this.configParameters.get("ServerPort"));
 			
-			createWorkThreads(numOfThreads);
 			
 			Runnable eRun = new EventManager(this);
 			Thread eventThread = new Thread(eRun);
@@ -48,18 +52,13 @@ public class FileServer {
 			if(eventManager.selector != null && eventManager.selector.isOpen()) {
 				eventManager.selector.close();
 			}
+			System.exit(0);
 			
 		}
 		catch(Exception e) {
 			System.out.println("[Exception] " + e);
+			e.printStackTrace();
 		}
 	}
 
-	private void createWorkThreads(int numOfThreads) {
-		for(int i = 0; i < numOfThreads; i++){
-			Runnable run = new FileThread(i);
-			Thread thread = new Thread(run);
-			thread.start();
-		}
-	}
 }  

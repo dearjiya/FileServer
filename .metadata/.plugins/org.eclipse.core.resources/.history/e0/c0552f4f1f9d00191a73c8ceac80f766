@@ -1,0 +1,13 @@
+import Server.FileServer;
+
+
+public class Main {
+	public static void main(String[] args) {
+		System.out.println("thread: " + Thread.currentThread().getName());
+		FileServer server = new FileServer("server1");
+		server.startServer();
+	}
+}
+
+
+

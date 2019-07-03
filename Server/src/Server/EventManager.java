@@ -37,7 +37,7 @@ public class EventManager implements Runnable {
 			if(serverSocketChannel.isOpen()) {
 				server.stopServer();
 			}
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 		
 		while (true) {
@@ -94,9 +94,17 @@ public class EventManager implements Runnable {
 		try{
 			ServerSocketForObject sock = new ServerSocketForObject(channel);
 			Message msg = (Message)sock.recv();
+			
+			if (msg == null) {
+				channel.close();
+				key.cancel();
+				return;
+			}
+			
 			msg.fileServer = this.server;
 			System.out.println("socket: " + channel.getRemoteAddress());
 			Message resMsg = msg.handle();
+			
 			
 	
 			if(resMsg == null){
@@ -111,10 +119,10 @@ public class EventManager implements Runnable {
 			e.printStackTrace();
 			try {
 				channel.close();
+				key.cancel();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			key.cancel();
 			System.out.println("Connection closed.");
 			return;
 		}

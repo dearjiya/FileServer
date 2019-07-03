@@ -10,7 +10,7 @@ import java.util.Properties;
 
 import Message.FileRequestMessage;
 import Message.FileTransferMessage;
-import Message.Protocol;
+import Message.CommandCode;
 import Message.ServerSocketForObject;
 import Server.FileServer;
 
@@ -29,7 +29,7 @@ public class FileServerParser {
 		String response = "";
 		
 		switch (sp[0].toUpperCase()) {
-		case Protocol.CONNECT_TO:
+		case CommandCode.CONNECT_TO:
 			int len = sp.length;
 			String tmpPath = "";
 			
@@ -65,7 +65,7 @@ public class FileServerParser {
 			remoteChannel.register(fileServer.eventManager.selector, SelectionKey.OP_READ);
 			
 			break;
-		case Protocol.PUSH_FILE:
+		case CommandCode.PUSH_FILE:
 			// SEND만 하고 파일 이름 보내지 않았을 경우 처리 필요
 			
 			FileInputStream fin;
@@ -109,7 +109,7 @@ public class FileServerParser {
 			}
 			
 			break;
-		case Protocol.PULL_FILE:
+		case CommandCode.PULL_FILE:
 			if(this.fileServer.remoteServer == null){
 				// Connect 요청 필요
 				response = "Require to CONNECT First";
@@ -129,7 +129,7 @@ public class FileServerParser {
 			}
 			
 			break;
-		case Protocol.GET_FILELIST:
+		case CommandCode.GET_FILELIST:
 			if(this.fileServer.remoteServer == null){
 				// Connect 요청 필요
 				response = "Require to CONNECT First";
@@ -159,7 +159,7 @@ public class FileServerParser {
 			}
 			
 			break;
-		case Protocol.STOP_SERVER:
+		case CommandCode.STOP_SERVER:
 			response = "Terminate process is start";
 //			System.exit(0);
 			this.fileServer.stopServer();

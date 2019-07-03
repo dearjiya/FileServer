@@ -58,7 +58,10 @@ public class ServerSocketForObject {
 					}
 				}
 			}
-		}catch(IOException | ClassNotFoundException e) {
+		}catch(IOException e) {
+			System.out.println("Disconnected.");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 			System.out.println("[Exception] " + e);
 		}
 		return null;

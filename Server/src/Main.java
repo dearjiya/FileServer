@@ -2,9 +2,13 @@ import Server.FileServer;
 
 
 public class Main {
-	private static final int SERVER_PORT = 10001;
 	public static void main(String[] args) {
-		FileServer server = new FileServer("server1", SERVER_PORT);
+		System.out.println("thread: " + Thread.currentThread().getName());
+		if (args.length != 1) {
+			System.out.println("Usage: FileServer [server_name]");
+			System.exit(1);
+		}
+		FileServer server = new FileServer(args[0]);
 		server.startServer();
 	}
 }
