@@ -1,12 +1,8 @@
 package Parser;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.List;
-import java.util.Properties;
 
 import Message.FileRequestMessage;
 import Message.FileTransferMessage;
@@ -17,7 +13,6 @@ import Server.FileServer;
 
 public class FileServerParser {
 	FileServer fileServer;
-	String fileNameList;
 	
 	public FileServerParser(FileServer server){
 		this.fileServer = server;
@@ -111,7 +106,6 @@ public class FileServerParser {
 			break;
 		case CommandCode.PULL_FILE:
 			if(this.fileServer.remoteServer == null){
-				// Connect 요청 필요
 				response = "Require to CONNECT First";
 			}
 			else{
@@ -131,7 +125,6 @@ public class FileServerParser {
 			break;
 		case CommandCode.GET_FILELIST:
 			if(this.fileServer.remoteServer == null){
-				// Connect 요청 필요
 				response = "Require to CONNECT First";
 			}
 			else {
@@ -142,19 +135,17 @@ public class FileServerParser {
 					String filePath = this.fileServer.configParameters.get("FileRepository");
 					File dirFile = new File(filePath);
 					File []fileList = dirFile.listFiles();
-					fileNameList = "";
 					System.out.println("filePath: "+filePath);
-					
+					response = "This is FileList";
 					for(File tempFile : fileList) {
 						if(tempFile.isFile()) {
 							String tempFileName = tempFile.getName();
-							fileNameList += tempFileName +" ";
+							response += "\n " + tempFileName;
 							System.out.println("fileName: "+tempFileName);
-							System.out.println(fileNameList);
 						}
 					}
 					
-					response = "This is FileList";
+					response += "\n---------FileList End---------";
 				}
 			}
 			

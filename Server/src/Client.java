@@ -33,7 +33,9 @@ public class Client {
             
             while(true){
             	System.out.println("You can send command Message.");
-            	System.out.println("1.CONNECT 2.PUSH 3.PULL 4.LIST 5.STOP SERVER");
+//            	System.out.println("CONNECT: 원격서버연결요청 PUSH [파일명] 3.PULL(파일가져오기) 4.LIST 5.STOP SERVER");
+            	System.out.println("CONNECT: 원격서버연결요청  / PUSH [파일명]: 파일보내기  / PULL [파일명]: 파일가져오기  / LIST: 해당경로의 파일리스트  / STOP: 관리서버 종료 ");
+            	
             	System.out.print("Command > ");
             	
             	String msg = sc.nextLine();
@@ -48,7 +50,6 @@ public class Client {
             	
             	System.out.println("Sending Success");
             	
-            	// Server로부터 데이터 받기
             	ResponseToClientMessage recvMsg = (ResponseToClientMessage)sock.recv();
             	if (recvMsg == null) {
             		System.out.println("Connection closed");
