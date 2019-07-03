@@ -32,7 +32,7 @@ public class ServerSocketForObject {
 	private ByteBuffer dataByteBuffer = null;
 	private boolean readLength = true;
 
-	public Serializable recv() {
+	public Serializable recv() throws IOException {
 		try {
 			boolean completeRead = false;
 			while (!completeRead) {
@@ -51,7 +51,6 @@ public class ServerSocketForObject {
 						ObjectInputStream ois = new ObjectInputStream(
 								new ByteArrayInputStream(dataByteBuffer.array()));
 						final Serializable ret = (Serializable) ois.readObject();
-						// clean up
 						dataByteBuffer = null;
 						readLength = true;
 						return ret;
@@ -60,6 +59,7 @@ public class ServerSocketForObject {
 			}
 		}catch(IOException e) {
 			System.out.println("Disconnected.");
+			throw e;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			System.out.println("[Exception] " + e);

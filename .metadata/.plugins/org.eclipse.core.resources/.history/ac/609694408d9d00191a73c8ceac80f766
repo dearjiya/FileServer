@@ -1,0 +1,10 @@
+package Parser;
+
+public class FileReader {
+
+	public static byte[] read(String filePath) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

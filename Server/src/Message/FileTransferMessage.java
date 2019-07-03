@@ -25,13 +25,11 @@ public class FileTransferMessage extends Message{
 		else{
 			buff = _buff;
 		}
-		
 		size = _size;
 		fileName = _fileName;
 		encrypt = _encrypt;
 	}
 	
-	@Override
 	public Message handle() {
 		System.out.println("Receive " + fileName + "(size: " + size + ", encryptOpt: " + encrypt + ")" );
 		String filePath = fileServer.configParameters.get("FileRepository") + "\\" + fileName;
@@ -40,14 +38,11 @@ public class FileTransferMessage extends Message{
 			if(encrypt == true){
 				buff = AESencdec.decrypt(buff);
 			}
-			
 			File outFile = new File(filePath);
 			FileOutputStream fileOutputStream = new FileOutputStream(outFile);
 			fileOutputStream.write(buff);
 			fileOutputStream.close();
-			
 			ResponseToClientMessage msg = new ResponseToClientMessage("Receive " + fileName + " to ");
-			
 			return msg;
 			
 		}catch(Exception e){

@@ -21,18 +21,14 @@ public class FileRequestMessage extends Message {
 				fileSize = reqFile.length();
 				FileInputStream fin = new FileInputStream(reqFile);
 				byte[] buffer = new byte[(int) fileSize];
-				
 				int data = fin.read(buffer);
 				fin.close();
 				
 				if (fileSize != data) {
 					System.out.println("Critical Error!!");
 				}
-				
 				FileTransferMessage transferMsg = new FileTransferMessage(fileSize, fileName, buffer, Boolean.parseBoolean(this.fileServer.configParameters.get("FileDataEncrypt")));
-				
 				System.out.println("Sent requested file");
-					
 				return transferMsg;
 				
 			}catch(Exception e){

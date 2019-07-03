@@ -9,7 +9,6 @@ public class FileServer {
 	
 	int serverPort;
 	public String serverName;
-	private static final int numOfThreads = 4;
 	public SocketChannel remoteServer = null;
 	public HashMap<String, String> configParameters;
 	
@@ -34,7 +33,6 @@ public class FileServer {
 			configParameters.put("ServerPort", loader.getValue("ServerPort"));
 			this.serverPort = Integer.parseInt(this.configParameters.get("ServerPort"));
 			
-			
 			Runnable eRun = new EventManager(this);
 			Thread eventThread = new Thread(eRun);
 			eventThread.start();
@@ -53,7 +51,6 @@ public class FileServer {
 				eventManager.selector.close();
 			}
 			System.exit(0);
-			
 		}
 		catch(Exception e) {
 			System.out.println("[Exception] " + e);

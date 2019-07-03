@@ -14,7 +14,6 @@ public class AESencdec {
         Cipher c = Cipher.getInstance(ALGOTYPE);
         c.init(Cipher.ENCRYPT_MODE, key);
         byte[] encVal = c.doFinal(Data);
-        //String encryptedValue = new BASE64Encoder().encode(encVal);
         return encVal;
     }
 
@@ -22,7 +21,6 @@ public class AESencdec {
         Key key = generateKey();
         Cipher c = Cipher.getInstance(ALGOTYPE);
         c.init(Cipher.DECRYPT_MODE, key);
-
         byte[] decValue = c.doFinal(encryptedData);
         return decValue;
     }
@@ -32,3 +30,6 @@ public class AESencdec {
         return key;
     }
 }
+
+
+

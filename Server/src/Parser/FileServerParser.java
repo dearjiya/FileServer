@@ -25,30 +25,28 @@ public class FileServerParser {
 		
 		switch (sp[0].toUpperCase()) {
 		case CommandCode.CONNECT_TO:
-			int len = sp.length;
-			String tmpPath = "";
 			
-			if(len == 1) {
-				// ServerConfig remoteipport 로 접속
-				tmpPath = this.fileServer.configParameters.get("RemoteIpPort");
+			if(sp.length != 1){
+				response = "Wrong command";
+				break;
 			}
-			else if((int) len == 2) {
-				tmpPath = sp[1];
+			
+			if(this.fileServer.remoteServer != null){
+				System.out.println("Already connected!");
+				response = "Already connected.";
+				break;
 			}
-			else {
-				
-			}
+			
+			String tmpPath = this.fileServer.configParameters.get("RemoteIpPort");
 			System.out.println("Connect to " + tmpPath);
 			String ipPort[] = tmpPath.split(":");
 			if(ipPort.length != 2){
-				// 잘못된 메시지 클라이언트에게 알려주는 부분 나중에 구현 필요
-				response = "Wrong Message";
+				response = "Wrong address. Check config.proerties";
 			}
 			String ip = ipPort[0];
 			String port = ipPort[1];
 			SocketChannel remoteChannel = func.RequireConnect(ip,port);
 			if(remoteChannel == null){
-				// 연결실패
 				response = "Failed Connection";
 			}
 			else{
@@ -61,46 +59,45 @@ public class FileServerParser {
 			
 			break;
 		case CommandCode.PUSH_FILE:
-			// SEND만 하고 파일 이름 보내지 않았을 경우 처리 필요
 			
 			FileInputStream fin;
 			
-			System.out.println("Try to send file (filename: " + sp[1] + ")");
-			
 			if(this.fileServer.remoteServer == null){
-				// Connect 요청 필요
 				response = "Require to CONNECT First";
 			}
 			else{
-				long fileSize;
-				String filePath = this.fileServer.configParameters.get("FileRepository") + "\\" + sp[1];
-				System.out.println(filePath);
-				File sendFile = new File(filePath);
-				
-				if(!sendFile.exists()){
-					response = "No Such File exists. PATH: " + filePath;
-					break;
+				if(sp.length != 2){
+					response = "Enter the filename";
 				}
-				
-				fileSize = sendFile.length();
-				fin = new FileInputStream(sendFile);
-				byte[] buffer = new byte[(int) fileSize];
-				// 파일 4기가 넘으면 문제가 됨
-				int data = fin.read(buffer);
-				
-				if (fileSize != data) {
-					response = "Critical Error!!";
-					break;
+				else{
+					System.out.println("Try to send file (filename: " + sp[1] + ")");
+					
+					long fileSize;
+					String filePath = this.fileServer.configParameters.get("FileRepository") + "\\" + sp[1];
+					System.out.println(filePath);
+					File sendFile = new File(filePath);
+					
+					if(!sendFile.exists()){
+						response = "No Such File exists. PATH: " + filePath;
+						break;
+					}
+					
+					fileSize = sendFile.length();
+					fin = new FileInputStream(sendFile);
+					byte[] buffer = new byte[(int) fileSize];
+					int data = fin.read(buffer);
+					
+					if (fileSize != data) {
+						response = "Critical Error!!";
+						break;
+					}
+					
+					fin.close();
+					FileTransferMessage ftMsg = new FileTransferMessage(fileSize, sp[1], buffer,Boolean.parseBoolean(this.fileServer.configParameters.get("FileDataEncrypt")));
+					ServerSocketForObject sock = new ServerSocketForObject(fileServer.remoteServer);
+					sock.send(ftMsg);
+					response = "Sent File[" + filePath + "] to remote server.";
 				}
-				
-				fin.close();
-				
-				FileTransferMessage ftMsg = new FileTransferMessage(fileSize, sp[1], buffer,Boolean.parseBoolean(this.fileServer.configParameters.get("FileDataEncrypt")));
-				
-				ServerSocketForObject sock = new ServerSocketForObject(fileServer.remoteServer);
-				sock.send(ftMsg);
-				
-				response = "Sent File[" + filePath + "] to remote server.";
 			}
 			
 			break;
@@ -144,7 +141,6 @@ public class FileServerParser {
 							System.out.println("fileName: "+tempFileName);
 						}
 					}
-					
 					response += "\n---------FileList End---------";
 				}
 			}
@@ -152,7 +148,6 @@ public class FileServerParser {
 			break;
 		case CommandCode.STOP_SERVER:
 			response = "Terminate process is start";
-//			System.exit(0);
 			this.fileServer.stopServer();
 		default:
 			response = "Unknown Protocol";

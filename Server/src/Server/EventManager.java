@@ -1,6 +1,7 @@
 package Server;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -45,9 +46,7 @@ public class EventManager implements Runnable {
 				System.out.println("Waiting select..");
 				selector.select();
 				System.out.println("Get selected!");
-				
 				Iterator<SelectionKey> iteratorKey = selector.selectedKeys().iterator();
-				
 				while(iteratorKey.hasNext()){
 					SelectionKey key = (SelectionKey) iteratorKey.next();
 					
@@ -60,7 +59,6 @@ public class EventManager implements Runnable {
 					else if(key.isReadable()){
 						readData(key);
 					}
-					
 					iteratorKey.remove();
 				} 
 				
@@ -76,9 +74,7 @@ public class EventManager implements Runnable {
 		try{
 			ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
 			SocketChannel channel= serverChannel.accept();
-			
 			System.out.println("[Connect OK: "+ channel.getRemoteAddress() + ": " + Thread.currentThread().getName() + "]");
-			
 			channel.configureBlocking(false);
 			channel.register(selector, SelectionKey.OP_READ);
 			System.out.println(channel.toString() + " client is connected");
@@ -88,7 +84,7 @@ public class EventManager implements Runnable {
 		}
 	}
 	
-	private void readData(SelectionKey key) throws IOException{
+	private void readData(SelectionKey key) throws IOException {
 		SocketChannel channel = (SocketChannel) key.channel();
 		
 		try{
@@ -104,20 +100,18 @@ public class EventManager implements Runnable {
 			msg.fileServer = this.server;
 			System.out.println("socket: " + channel.getRemoteAddress());
 			Message resMsg = msg.handle();
-			
-			
 	
 			if(resMsg == null){
 				return;
 			}
-			
 			sock = new ServerSocketForObject(channel);
 			sock.send(resMsg);
 		}
 		catch(IOException e){
 			System.out.println("[Exception] " + e);
-			e.printStackTrace();
 			try {
+				if (channel == this.server.remoteServer)
+					this.server.remoteServer = null;
 				channel.close();
 				key.cancel();
 			} catch (IOException e1) {

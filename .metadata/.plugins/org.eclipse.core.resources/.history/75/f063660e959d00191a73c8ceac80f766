@@ -1,0 +1,82 @@
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
+import java.util.Scanner;
+
+import Message.CmdMessage;
+import Message.Message;
+import Message.ResponseToClientMessage;
+import Message.ServerSocketForObject;
+import Parser.ConfigLoader;
+
+public class Client {
+	
+	static String serverAddress;
+	static String serverPort;
+
+    public static void main(String[] args) {
+    	
+    	try{
+    		if(args.length != 0){
+    			System.out.println("Usage: FileServerClient");
+    			System.exit(1);
+    		}
+    		System.out.println("Start client!");
+    		ConfigLoader loader = new ConfigLoader("./config/clientconfig.properties"); 
+    		serverAddress = loader.getValue("ServerAddress");
+			serverPort = loader.getValue("PortNum");
+
+    		SocketChannel socketChannel = SocketChannel.open();
+            socketChannel.configureBlocking(true);
+            
+            System.out.println("Require Connection to " + serverAddress + ":" + serverPort + " ..");
+            socketChannel.connect(new InetSocketAddress(serverAddress, Integer.parseInt(serverPort)));
+            System.out.println("Connection Success");
+            
+            Scanner sc = new Scanner(System.in);
+            
+            while(true){
+            	System.out.println("You can send command Message.");
+            	System.out.println("CONNECT: 원격서버연결요청  / PUSH [파일명]: 파일보내기  / PULL [파일명]: 파일가져오기  / LIST: 해당경로의 파일리스트  / STOP: 관리서버 종료  / q: 클라이언트 종료");
+            	System.out.print("Command > ");
+            	
+            	String msg = sc.nextLine();
+            	if (msg.equals("q")) {
+            		socketChannel.close();
+            		break;
+            	}
+            	
+            	CmdMessage cmd = new CmdMessage(msg);
+            	ServerSocketForObject sock = new ServerSocketForObject(socketChannel);
+            	sock.send((Message)cmd);
+            	System.out.println("Sending Success");
+            	ResponseToClientMessage recvMsg = (ResponseToClientMessage)sock.recv();
+            	if (recvMsg == null) {
+            		System.out.println("Connection closed");
+            		break;
+            	}
+            	System.out.println("Received Data : " + recvMsg.resMessage);
+            }
+            
+            sc.close();
+            
+    	}catch(ConnectException e) {
+    		System.out.println("[Exception] " + e);
+    		System.out.println("Failed connection (Check server state)");
+    	}
+    	catch(NumberFormatException e){
+    		e.printStackTrace();
+    	}catch(IOException e){
+    		System.out.println("[Exception] Disconnected to server.");
+    	}
+    	catch(Exception e ) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static void LoadConfig(String path) {
+    	
+    	
+    }
+}
