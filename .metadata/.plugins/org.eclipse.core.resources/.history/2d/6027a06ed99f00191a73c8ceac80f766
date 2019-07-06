@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 
 public class FileRequestMessage extends Message {
 
-	private static final long serialVersionUID = 1L;
 	String fileName;
 	public FileRequestMessage(String reqFileName) {
 		fileName = reqFileName;

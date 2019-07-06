@@ -1,6 +1,7 @@
 package Server;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -122,3 +123,13 @@ public class EventManager implements Runnable {
 	}
 }
 
+
+//int numRead = -1;
+//numRead = channel.read(buffer); // return value 가 -1 이면 끊긴것 
+//if(numRead == -1){
+//	System.out.println("numRead is -1");
+//	channel.close();
+//	key.cancel();
+//	return;
+//}
+//
