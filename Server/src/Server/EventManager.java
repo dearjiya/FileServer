@@ -83,19 +83,16 @@ public class EventManager implements Runnable {
 		}
 	}
 	
-	private void readData(SelectionKey key) throws IOException {
+	private void readData(SelectionKey key) {
 		SocketChannel channel = (SocketChannel) key.channel();
-		
 		try{
 			ServerSocketForObject sock = new ServerSocketForObject(channel);
 			Message msg = (Message)sock.recv();
-			
 			if (msg == null) {
 				channel.close();
 				key.cancel();
 				return;
 			}
-			
 			msg.fileServer = this.server;
 			System.out.println("socket: " + channel.getRemoteAddress());
 			Message resMsg = msg.handle();

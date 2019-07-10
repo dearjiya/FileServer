@@ -36,7 +36,11 @@ public class ServerSocketForObject {
 			boolean completeRead = false;
 			while (!completeRead) {
 				if (readLength) {
-					channel.read(lengthByteBuffer);
+					int numRead = channel.read(lengthByteBuffer);
+					if(numRead == -1) {
+						System.out.println("This channel is closed");
+						return null;
+					}
 					if (lengthByteBuffer.remaining() == 0) {
 						readLength = false;
 						dataByteBuffer = ByteBuffer
